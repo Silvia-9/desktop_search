@@ -13,7 +13,7 @@ A beautiful, modern web app to save, search and manage your favorite links—lik
 - 🏷️ **Categories:** Organise links by Work, Coding, Learning, Articles, and Tools.
 - 📝 **Descriptions:** Add notes to each link.
 - 📋 **Sticky Notes Board:** Visual, colorful cards for each link.
-- ➕ **Add/Edit/Delete:** Full CRUD for your links.
+- ➕ **Copy/Open/Edit/Delete:** Full COED for your links.
 - 📤 **Export:** Download all links as an Excel file.
 - 🗂️ **Local Storage:** Your data stays private in your browser.
 
