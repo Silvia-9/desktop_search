@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="🔍Enhance your search experience with Desktop Search! Find related content from your indexed files and make new connections effortlessly with every search.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop Link Search</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Poppins:wght@500;600;700;800&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --font-primary: 'Google Sans', 'Inter', 'Roboto', 'Segoe UI', sans-serif;
+            --font-heading: 'Poppins', 'Google Sans Display', 'Segoe UI', sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+        }
+
+        .logo-text {
+            font-size: 40px !important;
+            letter-spacing: -0.5px;
+            font-weight: 400;
+            font-family:var(--font-heading);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="#" class="logo" onclick="resetSearch()">
+            <img src="DesktopSearch.png" alt="Desktop Search" class="header-logo-image">
+            <span class="logo-text"><span style="color: #4285f4;">D</span><span style="color: #ea4335;">e</span><span style="color: #fbbc05;">s</span><span style="color: #4285f4;">k</span><span style="color: #34a853;">t</span><span style="color: #ea4335;">o</span><span style="color: #4285f4;">p</span> Search</span>
+        </a>
+        <div class="header-actions">
+            <span id="linkCount" style="font-size: 14px; color: #70757a;">0 links</span>
+            <button id="downloadExcelBtn" class="search-btn icon-btn" style="margin-top: 10px; font-size: 13px; padding: 4px 14px; display: block;" onclick="linkManager.downloadLinksExcel()" title="Download all links as Excel">
+                Download
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+    <div class="search-container" id="searchContainer">
+        <div class="search-logo" id="searchLogo">
+            <div class="google-logo" style="font-size: 5.5rem; display: flex; align-items: center; gap: 32px;">
+                <img src="DesktopSearch.png" alt="Desktop Search" class="logo-image" style="width: 110px; height: 110px;">
+                <div class="logo-text-container" style="font-size: 5.5rem; font-family: var(--font-heading); font-weight: 800; display: flex; align-items: center;">
+                    <span style="color: #4285f4; font-size: 5.5rem;">D</span>
+                    <span style="color: #ea4335; font-size: 5.5rem;">e</span>
+                    <span style="color: #fbbc05; font-size: 5.5rem;">s</span>
+                    <span style="color: #4285f4; font-size: 5.5rem;">k</span>
+                    <span style="color: #34a853; font-size: 5.5rem;">t</span>
+                    <span style="color: #ea4335; font-size: 5.5rem;">o</span>
+                    <span style="color: #4285f4; font-size: 5.5rem;">p</span>
+                    <span style="color: #5f6368; font-weight: 800; margin-left: 28px; font-size: 5.5rem;">Search</span>
+                </div>
+            </div>
+        </div>
+        <div class="search-box">
+            <div class="search-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa0a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search your links..." autocomplete="off">
+        </div>
+        <div class="search-buttons" id="searchButtons">
+            <button class="search-btn icon-btn" onclick="openAddModal()" title="Add New Link">
+                Add Link
+            </button>
+        </div>
+    </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <div class="category-selection">
+                    <div class="category-buttons">
+                        <button class="category-btn active" onclick="showAllCategories()" data-category="">
+                            📋 All Links <span class="category-count" id="count-all">0</span>
+                        </button>
+                        <button class="category-btn" onclick="filterByCategory('work')" data-category="work">
+                            🏢 Work <span class="category-count" id="count-work">0</span>
+                        </button>
+                        <button class="category-btn" onclick="filterByCategory('coding')" data-category="coding">
+                            💻 Coding <span class="category-count" id="count-coding">0</span>
+                        </button>
+                        <button class="category-btn" onclick="filterByCategory('learning')" data-category="learning">
+                            📚 Learning <span class="category-count" id="count-learning">0</span>
+                        </button>
+                        <button class="category-btn" onclick="filterByCategory('articles')" data-category="articles">
+                            📰 Articles <span class="category-count" id="count-articles">0</span>
+                        </button>
+                        <button class="category-btn" onclick="filterByCategory('tools')" data-category="tools">
+                            🔧 Tools <span class="category-count" id="count-tools">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="linksList"></div>
+        </div>
+    </div>
+
+    <!-- Add Link Modal -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeAddModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </span>
+                <h2 class="modal-title">New Link</h2>
+            </div>
+            <form id="linkForm">
+                <div class="form-group">
+                    <label class="form-label" for="linkTitle">Title</label>
+                    <input type="text" class="form-input" id="linkTitle" placeholder="Enter a title for your new link" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="linkUrl">URL</label>
+                    <input type="url" class="form-input" id="linkUrl" placeholder="https://..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="linkDescription">Description (Optional)</label>
+                    <input type="text" class="form-input" id="linkDescription" placeholder="Brief description">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="linkCategory">Category</label>
+                    <select class="form-input" id="linkCategory">
+                        <option value="">Select Category</option>
+                        <option value="work">🏢 Work</option>
+                        <option value="coding">💻 Coding</option>
+                        <option value="learning">📚 Learning</option>
+                        <option value="articles">📰 Articles</option>
+                        <option value="tools">🔧 Tools</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+                    <button type="button" class="btn-save" onclick="linkManager.addLink()">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        class LinkManager {
+            downloadLinksExcel() {
+                const headers = ['Title', 'URL', 'Description', 'Category', 'Date Added'];
+                const rows = this.links.map(link => [
+                    this.escapeForExcel(link.title),
+                    this.escapeForExcel(link.url),
+                    this.escapeForExcel(link.description || ''),
+                    this.escapeForExcel(this.getCategoryName(link.category || '')),
+                    this.escapeForExcel(link.dateAdded || '')
+                ]);
+                let csvContent = '\uFEFF' + headers.join(',') + '\n';
+                rows.forEach(row => {
+                    csvContent += row.join(',') + '\n';
+                });
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `links-${new Date().toISOString().slice(0,10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+            }
+
+            escapeForExcel(text) {
+                if (!text) return '';
+                const escaped = String(text).replace(/"/g, '""');
+                if (escaped.search(/[",\n]/g) >= 0) {
+                    return '"' + escaped + '"';
+                }
+                return escaped;
+            }
+            constructor() {
+                this.links = this.loadLinks();
+                
+                // Add Oracle link if it doesn't exist
+                const hasOracleLink = this.links.some(link => 
+                    link.url === "https://education.oracle.com/race-to-certification-2025"
+                );
+                
+                if (!hasOracleLink) {
+                    const oracleLink = {
+                        id: Date.now(),
+                        title: "Oracle Race to Certification 2025",
+                        url: "https://education.oracle.com/race-to-certification-2025",
+                        description: "Oracle certification race program for 2025",
+                        category: "learning",
+                        dateAdded: new Date().toLocaleDateString()
+                    };
+                    this.links.unshift(oracleLink);
+                    this.saveLinks();
+                }
+                
+                this.initEventListeners();
+                this.updateLinkCount();
+                this.updateCategoryCounts();
+                this.currentQuery = '';
+                // Show all links by default
+                this.showAllLinksOnLoad();
+            }
+
+            initEventListeners() {
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.currentQuery = e.target.value.trim();
+                    if (this.currentQuery) {
+                        this.searchLinks(this.currentQuery);
+                    } else {
+                        this.showAllLinksOnLoad();
+                    }
+                });
+
+                document.getElementById('searchInput').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && this.currentQuery) {
+                        this.searchLinks(this.currentQuery);
+                    }
+                });
+
+                // Close modal when clicking outside
+                window.addEventListener('click', (e) => {
+                    const modal = document.getElementById('addModal');
+                    if (e.target === modal) {
+                        this.closeAddModal();
+                    }
+                });
+            }
+
+            showAllLinksOnLoad() {
+                if (this.links.length > 0) {
+                    this.showResults(this.links);
+                } else {
+                    this.hideResults();
+                }
+            }
+
+            addLink() {
+                const title = document.getElementById('linkTitle').value.trim();
+                const url = document.getElementById('linkUrl').value.trim();
+                const description = document.getElementById('linkDescription').value.trim();
+                const category = document.getElementById('linkCategory').value;
+
+                if (!title || !url) {
+                    this.showNotification('Please fill in both title and URL fields.', 'error');
+                    return;
+                }
+
+                const now = Date.now();
+                const link = {
+                    id: now,
+                    timestamp: now, // Explicit timestamp for sorting
+                    title: title,
+                    url: url,
+                    description: description,
+                    category: category,
+                    dateAdded: new Date().toLocaleDateString()
+                };
+
+                this.links.unshift(link);
+                this.saveLinks();
+                this.updateLinkCount();
+                this.updateCategoryCounts();
+                this.clearForm();
+                this.closeAddModal();
+                this.showNotification('Link added successfully!');
+
+                // If we're currently searching, refresh results
+                if (this.currentQuery) {
+                    this.searchLinks(this.currentQuery);
+                } else {
+                    this.showAllLinksOnLoad();
+                }
+            }
+
+            deleteLink(id) {
+                if (confirm('Delete this link?')) {
+                    this.links = this.links.filter(link => link.id !== id);
+                    this.saveLinks();
+                    this.updateLinkCount();
+                    this.showNotification('Link deleted');
+
+                    // Refresh current view
+                    if (this.currentQuery) {
+                        this.searchLinks(this.currentQuery);
+                    } else {
+                        this.showAllLinksOnLoad();
+                    }
+                }
+            }
+
+            copyLink(url) {
+                navigator.clipboard.writeText(url).then(() => {
+                    this.showNotification('Link copied to clipboard');
+                }).catch(() => {
+                    // Fallback for older browsers
+                    const textarea = document.createElement('textarea');
+                    textarea.value = url;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    this.showNotification('Link copied to clipboard');
+                });
+            }
+
+            searchLinks(query) {
+                const filtered = this.links.filter(link => 
+                    link.title.toLowerCase().includes(query.toLowerCase()) ||
+                    link.url.toLowerCase().includes(query.toLowerCase()) ||
+                    link.description.toLowerCase().includes(query.toLowerCase())
+                );
+                
+                this.showResults(filtered);
+            }
+
+            showAllLinks() {
+                this.showResults(this.links);
+            }
+
+            showResults(links) {
+                const searchContainer = document.getElementById('searchContainer');
+                const resultsSection = document.getElementById('resultsSection');
+                const searchLogo = document.getElementById('searchLogo');
+                const searchButtons = document.getElementById('searchButtons');
+                
+                // Transform to search results layout
+                searchContainer.classList.add('has-results');
+                searchLogo.classList.add('small');
+                searchButtons.style.display = 'flex'; // Keep button visible
+                resultsSection.classList.add('show');
+                
+                this.renderLinks(links);
+            }
+
+            hideResults() {
+                const searchContainer = document.getElementById('searchContainer');
+                const resultsSection = document.getElementById('resultsSection');
+                const searchLogo = document.getElementById('searchLogo');
+                const searchButtons = document.getElementById('searchButtons');
+                
+                // Transform back to home layout
+                searchContainer.classList.remove('has-results');
+                searchLogo.classList.remove('small');
+                searchButtons.style.display = 'flex';
+                resultsSection.classList.remove('show');
+            }
+
+            resetSearch() {
+                document.getElementById('searchInput').value = '';
+                this.currentQuery = '';
+                this.showAllLinksOnLoad();
+            }
+
+            renderLinks(links) {
+                const linksList = document.getElementById('linksList');
+
+                if (links.length === 0) {
+                    linksList.innerHTML = `
+                        <div class="empty-state">
+                            No links found. Try a different search term or add a new link.
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Apply Sticky Note style
+                if (links.length > 0) {
+                    linksList.className = 'links-grid';
+                    
+                    // Sort links by newest first
+                    const sortedLinks = [...links].sort((a, b) => b.id - a.id);
+                    
+                    // Calculate z-index with a very large base for newest items
+                    const startZIndex = 9000; // High starting value
+                    
+                    // First, render all cards except the newest one
+                    const regularCards = sortedLinks.slice(1).map((link, index) => {
+                        // Assign higher z-index to newer items (at the beginning of the array)
+                        const zIndex = startZIndex - ((index + 1) * 10); // Large gaps between values
+                        const dateAdded = link.dateAdded || 'Added recently';
+                        
+                        return `
+                        <div class="link-card ${link.category ? `category-${link.category}` : ''}" style="z-index: ${zIndex}; --delay: ${index};">
+                            ${link.category ? `<span class="category-badge category-${link.category}">${this.getCategoryName(link.category)}</span>` : ''}
+                            <a href="${link.url}" target="_blank" class="link-card-title">${this.escapeHtml(link.title)}</a>
+                            <div class="link-card-description">${link.description ? this.escapeHtml(link.description) : 'No description available'}</div>
+                            <div class="link-card-url">
+                                <span class="link-favicon">${this.getFaviconEmoji(link.url)}</span>
+                                ${this.getDomain(link.url)}
+                            </div>
+                            <div class="link-card-date">${dateAdded}</div>
+                            <div class="link-card-actions">
+                                <a class="card-action-btn" onclick="linkManager.copyLink('${link.url}')" title="Copy">Copy</a>
+                                <a class="card-action-btn" href="${link.url}" target="_blank" title="Open">Open</a>
+                                <a class="card-action-btn edit-btn" onclick="linkManager.editLink(${link.id})" title="Edit">Edit</a>
+                                <a class="card-action-btn delete-btn" onclick="linkManager.deleteLink(${link.id})" title="Delete">Delete</a>
+                            </div>
+                        </div>
+                        `;
+                    }).join('');
+                    
+                    // Now, if we have a newest card, render it separately with the highest z-index and a special class
+                    let newestCardHtml = '';
+                    if (sortedLinks.length > 0) {
+                        const newestLink = sortedLinks[0];
+                        const dateAdded = newestLink.dateAdded || 'Added recently';
+                        
+                        newestCardHtml = `
+                        <div class="link-card newest-card ${newestLink.category ? `category-${newestLink.category}` : ''}" style="z-index: ${startZIndex}; --delay: 0;">
+                            ${newestLink.category ? `<span class="category-badge category-${newestLink.category}">${this.getCategoryName(newestLink.category)}</span>` : ''}
+                            <div class="new-label">
+                                <span style="font-weight:700; color:#ff3d00; background-color:#fff0c4; padding:2px 6px; border-radius:4px; letter-spacing:0.5px; font-size:12px; text-transform:uppercase; border:1px solid #ffab00;">NEW</span>
+                            </div>
+                            <a href="${newestLink.url}" target="_blank" class="link-card-title">
+                                ${this.escapeHtml(newestLink.title)}
+                            </a>
+                            <div class="link-card-description">${newestLink.description ? this.escapeHtml(newestLink.description) : 'No description available'}</div>
+                            <div class="link-card-url">
+                                <span class="link-favicon">${this.getFaviconEmoji(newestLink.url)}</span>
+                                ${this.getDomain(newestLink.url)}
+                            </div>
+                            <div class="link-card-date">${dateAdded}</div>
+                            <div class="link-card-actions">
+                                <a class="card-action-btn" onclick="linkManager.copyLink('${newestLink.url}')" title="Copy">Copy</a>
+                                <a class="card-action-btn" href="${newestLink.url}" target="_blank" title="Open">Open</a>
+                                <a class="card-action-btn edit-btn" onclick="linkManager.editLink(${newestLink.id})" title="Edit">Edit</a>
+                                <a class="card-action-btn delete-btn" onclick="linkManager.deleteLink(${newestLink.id})" title="Delete">Delete</a>
+                            </div>
+                        </div>
+                        `;
+                    }
+                    
+                    // Combine the newest card with other cards
+                    linksList.innerHTML = newestCardHtml + regularCards;
+                }
+            }
+
+            updateLinkCount() {
+                document.getElementById('linkCount').textContent = `${this.links.length} links`;
+            }
+
+
+
+            getDomain(url) {
+                try {
+                    return new URL(url).hostname.replace('www.', '');
+                } catch {
+                    return url.split('/')[2] || url;
+                }
+            }
+            
+            getFaviconEmoji(url) {
+                const domain = this.getDomain(url).toLowerCase();
+                
+                // Map common domains to specific emojis
+                if (domain.includes('github')) return '🐱';
+                if (domain.includes('google')) return '🔍';
+                if (domain.includes('youtube')) return '📺';
+                if (domain.includes('facebook')) return '👥';
+                if (domain.includes('twitter') || domain.includes('x.com')) return '🐦';
+                if (domain.includes('instagram')) return '📷';
+                if (domain.includes('linkedin')) return '💼';
+                if (domain.includes('amazon')) return '📦';
+                if (domain.includes('netflix')) return '🎬';
+                if (domain.includes('spotify')) return '🎵';
+                if (domain.includes('apple')) return '🍎';
+                if (domain.includes('microsoft')) return '💻';
+                if (domain.includes('reddit')) return '👽';
+                if (domain.includes('twitch')) return '🎮';
+                if (domain.includes('discord')) return '💬';
+                if (domain.includes('slack')) return '💬';
+                if (domain.includes('medium')) return '📝';
+                if (domain.includes('stackoverflow')) return '❓';
+                if (domain.includes('wikipedia')) return '📚';
+                if (domain.includes('news') || domain.includes('cnn') || domain.includes('bbc')) return '📰';
+                if (domain.includes('oracle')) return '☁️';
+                
+                // Default emoji based on first letter
+                const letter = domain.charAt(0).toLowerCase();
+                const letterEmojis = {
+                    'a': '🔴', 'b': '🟠', 'c': '🟡', 'd': '🟢', 'e': '🔵',
+                    'f': '🟣', 'g': '🟤', 'h': '⚫', 'i': '⚪', 'j': '🟥',
+                    'k': '🟧', 'l': '🟨', 'm': '🟩', 'n': '🟦', 'o': '🟪',
+                    'p': '🟫', 'q': '⬛', 'r': '⬜', 's': '🔶', 't': '🔷',
+                    'u': '🔸', 'v': '🔹', 'w': '🔺', 'x': '🔻', 'y': '💠', 'z': '🔘'
+                };
+                
+                return letterEmojis[letter] || '🌐';
+            }
+
+            openAddModal() {
+                const modal = document.getElementById('addModal');
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('linkTitle').focus();
+                }, 300);
+            }
+
+            closeAddModal() {
+                const modal = document.getElementById('addModal');
+                const modalContent = modal.querySelector('.modal-content');
+                
+                modalContent.style.animation = 'slideUp 0.2s ease-in forwards';
+                
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    modalContent.style.animation = 'slideDown 0.3s cubic-bezier(0.22, 1, 0.36, 1)';
+                    this.clearForm();
+                    this.resetModal(); // Reset modal state when closing
+                }, 200);
+            }
+
+            clearForm() {
+                document.getElementById('linkTitle').value = '';
+                document.getElementById('linkUrl').value = '';
+                document.getElementById('linkDescription').value = '';
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
+            escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, (m) => map[m]);
+            }
+
+            getCategoryName(category) {
+                const categoryNames = {
+                    'work': '🏢 Work',
+                    'coding': '💻 Coding',
+                    'learning': '📚 Learning',
+                    'articles': '📰 Articles',
+                    'tools': '🔧 Tools'
+                };
+                return categoryNames[category] || category;
+            }
+
+            saveLinks() {
+                localStorage.setItem('linkManager_links', JSON.stringify(this.links));
+            }
+
+            loadLinks() {
+                const saved = localStorage.getItem('linkManager_links');
+                return saved ? JSON.parse(saved) : [];
+            }
+
+            filterByCategoryValue(categoryValue) {
+                if (!categoryValue) {
+                    this.showAllLinksOnLoad();
+                    this.updateCategoryButtons('');
+                    return;
+                }
+                
+                const filteredLinks = this.links.filter(link => link.category === categoryValue);
+                if (filteredLinks.length > 0) {
+                    this.showResults(filteredLinks);
+                } else {
+                    this.showResults([]);
+                }
+                this.updateCategoryButtons(categoryValue);
+            }
+
+            updateCategoryButtons(activeCategory) {
+                const buttons = document.querySelectorAll('.category-btn');
+                buttons.forEach(btn => {
+                    const category = btn.getAttribute('data-category') || '';
+                    btn.classList.toggle('active', category === activeCategory);
+                });
+                
+                // Update counts
+                this.updateCategoryCounts();
+            }
+
+            updateCategoryCounts() {
+                const counts = {
+                    all: this.links.length,
+                    work: 0,
+                    coding: 0,
+                    learning: 0,
+                    articles: 0,
+                    tools: 0
+                };
+
+                this.links.forEach(link => {
+                    if (link.category && counts.hasOwnProperty(link.category)) {
+                        counts[link.category]++;
+                    }
+                });
+
+                // Update count displays
+                Object.keys(counts).forEach(category => {
+                    const countElement = document.getElementById(`count-${category}`);
+                    if (countElement) {
+                        countElement.textContent = counts[category];
+                    }
+                });
+            }
+
+            editLink(id) {
+                const link = this.links.find(link => link.id === id);
+                if (!link) return;
+
+                // Populate the form with current link data
+                document.getElementById('linkTitle').value = link.title;
+                document.getElementById('linkUrl').value = link.url;
+                document.getElementById('linkDescription').value = link.description || '';
+                document.getElementById('linkCategory').value = link.category || '';
+
+                // Change the modal title and button text to indicate editing
+                document.querySelector('.modal-title').textContent = 'Edit Link';
+                const submitBtn = document.querySelector('#addModal .btn-save');
+                submitBtn.textContent = 'Update Link';
+                submitBtn.onclick = () => this.updateLink(id);
+
+                // Show the modal
+                this.openAddModal();
+            }
+
+            updateLink(id) {
+                const title = document.getElementById('linkTitle').value.trim();
+                const url = document.getElementById('linkUrl').value.trim();
+                const description = document.getElementById('linkDescription').value.trim();
+                const category = document.getElementById('linkCategory').value;
+
+                if (!title || !url) {
+                    this.showNotification('Please fill in all required fields', 'error');
+                    return;
+                }
+
+                // Find and update the link
+                const linkIndex = this.links.findIndex(link => link.id === id);
+                if (linkIndex !== -1) {
+                    this.links[linkIndex] = {
+                        ...this.links[linkIndex],
+                        title,
+                        url,
+                        description,
+                        category: category || null
+                    };
+
+                    this.saveLinks();
+                    this.updateLinkCount();
+                    this.updateCategoryCounts();
+                    this.showNotification('Link updated successfully');
+
+                    // Reset modal
+                    this.resetModal();
+                    this.closeAddModal();
+
+                    // Refresh current view
+                    if (this.currentQuery) {
+                        this.searchLinks(this.currentQuery);
+                    } else {
+                        this.showAllLinksOnLoad();
+                    }
+                }
+            }
+
+            resetModal() {
+                // Reset modal title and button for adding new links
+                document.querySelector('.modal-title').textContent = 'New Link';
+                const submitBtn = document.querySelector('#addModal .btn-save');
+                submitBtn.textContent = 'Save';
+                submitBtn.onclick = () => this.addLink();
+            }
+        }
+
+        // Initialize the app
+        const linkManager = new LinkManager();
+
+        // Global functions for onclick handlers
+        function openAddModal() {
+            // Create visual click effect
+            const addLinkBtn = document.querySelector('.search-btn.icon-btn');
+            addLinkBtn.classList.add('clicked');
+            
+            // Remove effect after animation completes
+            setTimeout(() => {
+                addLinkBtn.classList.remove('clicked');
+            }, 300);
+            
+            linkManager.openAddModal();
+        }
+
+        function closeAddModal() {
+            linkManager.closeAddModal();
+        }
+
+        function resetSearch() {
+            linkManager.resetSearch();
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Focus search on '/' key
+            if (e.key === '/' && e.target.tagName !== 'INPUT') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+            
+            // Escape to close modal or reset search
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('addModal');
+                if (modal.style.display === 'block') {
+                    linkManager.closeAddModal();
+                } else if (linkManager.currentQuery) {
+                    linkManager.resetSearch();
+                }
+            }
+        });
+
+        // Category functions
+        function showAllCategories() {
+            linkManager.filterByCategoryValue('');
+        }
+
+        function filterByCategory(category = '') {
+            if (category) {
+                linkManager.filterByCategoryValue(category);
+            } else {
+                linkManager.filterByCategory();
+            }
+        }
+    </script>
+</body>
+</html>
