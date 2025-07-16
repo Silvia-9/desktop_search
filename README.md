@@ -17,4 +17,7 @@ A beautiful, modern web app to save, search and manage your favorite links—lik
 - 📤 **Export:** Download all links as an Excel file.
 - 🗂️ **Local Storage:** Your data stays private in your browser.
 
+---
+    
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V21GTGDS)
 
