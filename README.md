@@ -1,4 +1,9 @@
-# Desktop Link Search
+
+<p align="center">
+  <img src="DesktopSearch.png" alt="Desktop Search" width="180" />
+</p>
+
+# Desktop Search
 
 A beautiful, modern web app to save, search and manage your favorite links—like sticky notes for your browser!
 
