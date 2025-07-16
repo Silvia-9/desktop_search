@@ -183,21 +183,21 @@
             constructor() {
                 this.links = this.loadLinks();
                 
-                // Add Oracle link if it doesn't exist
-                const hasOracleLink = this.links.some(link => 
-                    link.url === "https://education.oracle.com/race-to-certification-2025"
+                // Add Google link if it doesn't exist
+                const hasGoogleLink = this.links.some(link => 
+                    link.url === "https://www.google.com/"
                 );
                 
-                if (!hasOracleLink) {
-                    const oracleLink = {
+                if (!hasGoogleLink) {
+                    const googleLink = {
                         id: Date.now(),
-                        title: "Oracle Race to Certification 2025",
-                        url: "https://education.oracle.com/race-to-certification-2025",
-                        description: "Oracle certification race program for 2025",
-                        category: "learning",
+                        title: "Google",
+                        url: "https://www.google.com/",
+                        description: "The world's most popular search engine.",
+                        category: "tools",
                         dateAdded: new Date().toLocaleDateString()
                     };
-                    this.links.unshift(oracleLink);
+                    this.links.unshift(googleLink);
                     this.saveLinks();
                 }
                 
